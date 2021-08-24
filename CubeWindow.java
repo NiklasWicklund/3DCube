@@ -1,5 +1,6 @@
 
 import javax.swing.*;
+import java.awt.*;
 
 public class CubeWindow extends JFrame{
 
@@ -7,12 +8,13 @@ public class CubeWindow extends JFrame{
 
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setBounds(100,100,450,450);
+        Dimension size = new Dimension(450,450);
+        setSize(size);
 
         //Display the window
         //Makes sure the window is placed in the center of the screen
         setLocationRelativeTo(null);
-        getContentPane().add(new CubePanel());
+        getContentPane().add(new CubePanel(size));
         //Shows the window
         setVisible(true);
     }

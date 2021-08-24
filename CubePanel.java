@@ -7,14 +7,21 @@ public class CubePanel extends JPanel implements KeyListener {
     private Cube cube;
     private Timer timer;
     private boolean automaticSpin = false;
-    public CubePanel (){
+    private JLabel cubeInfoLabel;
+    public CubePanel (Dimension frameSize){
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
         //This panel now listens for key inputs.
         setFocusable(true);
         addKeyListener(this);
 
         //Create our cube object
-        cube = new Cube();
+        cube = new Cube((int)frameSize.getWidth()/2,(int)frameSize.getHeight()/2);
+        cubeInfoLabel = new JLabel("Side length of Cube (-: 1, +: 2): " + cube.getSideLength() + "px \n Fill sides (Toggle: D): " + cube.getDrawSides());
+        cubeInfoLabel.setFont(new Font("Verdana",1,10));
+        Dimension size = cubeInfoLabel.getPreferredSize();
+        cubeInfoLabel.setBounds(0, 0, size.width, size.height);
+        add(cubeInfoLabel);
+
         int delay = 30; //milliseconds
         ActionListener taskPerformer = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -30,6 +37,10 @@ public class CubePanel extends JPanel implements KeyListener {
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         cube.render(g);
+        cubeInfoLabel.setText("Side length of Cube (-: 1, +: 2): " + cube.getSideLength() + "px \n\r Fill sides (Toggle: D): " + cube.getDrawSides());
+
+
+        
         repaint();
         Toolkit.getDefaultToolkit().sync();
     }
@@ -48,6 +59,15 @@ public class CubePanel extends JPanel implements KeyListener {
                 break;
             case KeyEvent.VK_P:
                 automaticSpin = !automaticSpin;
+                break;
+            case KeyEvent.VK_1:
+                cube.changeSideLength(-2);
+                break;
+            case KeyEvent.VK_2:
+                cube.changeSideLength(2);
+                break;
+            case KeyEvent.VK_D:
+                cube.toggleDrawSides();
                 break;
             default:
                 break;

@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 public class Cube {
     private int posX;
@@ -10,28 +11,30 @@ public class Cube {
     private double[][] rotationZ;
     private double[][] rotationX;
     private double[][] rotationY;
-    private Vector[] points = new Vector[8];
+    private Vector[] vectors = new Vector[8];
     private Vector center;
+    private int sideLength;
+    private boolean drawSides = false;
 
-    public Cube(){
+    public Cube(int centerX,int centerY){
         //Initalizing our beautiful cube with its 8 points, the cube has side length of 1.
-        points[0] = new Vector(-0.5, -0.5, -0.5);
-        points[1] = new Vector(0.5, -0.5, -0.5);
-        points[2] = new Vector(0.5, 0.5, -0.5);
-        points[3] = new Vector(-0.5, 0.5, -0.5);
-        points[4] = new Vector(-0.5, -0.5, 0.5);
-        points[5] = new Vector(0.5, -0.5, 0.5);
-        points[6] = new Vector(0.5, 0.5, 0.5);
-        points[7] = new Vector(-0.5, 0.5, 0.5);
-        
-        //The center of the cube, should maybe be taken in as arguments in the constructor.
-        center = new Vector(200,200,0);
+        vectors[0] = new Vector(-0.5, -0.5, -0.5);
+        vectors[1] = new Vector(0.5, -0.5, -0.5);
+        vectors[2] = new Vector(0.5, 0.5, -0.5);
+        vectors[3] = new Vector(-0.5, 0.5, -0.5);
+        vectors[4] = new Vector(-0.5, -0.5, 0.5);
+        vectors[5] = new Vector(0.5, -0.5, 0.5);
+        vectors[6] = new Vector(0.5, 0.5, 0.5);
+        vectors[7] = new Vector(-0.5, 0.5, 0.5);
+
+        center = new Vector(centerX,centerY,0);
 
         
         angleX = 0;
         angleY = 0;
         angleZ = 0;
 
+        sideLength = 200;
         
         updateRotationMatrices();
 
@@ -71,7 +74,10 @@ public class Cube {
         g.setColor(Color.black);
 
         ArrayList<Vector> projectedVectors = new ArrayList<>();
-        for (Vector v : points) {
+        Point[] points = new Point[8];
+
+        int i = 0;
+        for (Vector v : vectors) {
             Vector rotated = Matrix.multi(rotationX, v);
             rotated = Matrix.multi(rotationY, rotated);
             rotated= Matrix.multi(rotationZ, rotated);
@@ -79,17 +85,43 @@ public class Cube {
 
             Vector projected2d = Matrix.multi(projection, rotated);
 
-            //Scales the vectors, => Width of cube becomes 200px
-            projected2d.mult(200);
+            //Scales the vectors, => Width of cube becomes 'sideLength'px
+            projected2d.mult(sideLength);
             projectedVectors.add(projected2d);
+            points[i] = new Point((int)(center.x + projected2d.x), (int)(center.y + projected2d.y));
+            i++;
+        }
+        g.setColor(Color.blue);
+
+        //Draws the six sides.
+        if(drawSides){
+            drawSide(g,new int[]{0,1,2,3},points);
+            drawSide(g,new int[]{4,5,6,7},points);
+            drawSide(g,new int[]{0,3,7,4},points);
+            drawSide(g,new int[]{2,3,7,6},points);
+            drawSide(g,new int[]{1,2,6,5},points);
+            drawSide(g,new int[]{0,1,5,4},points);
         }
 
+
+        g.setColor(Color.black);
         /*Connect, draw lines between transformed vectors */
         for (int j = 0; j < 4; j++) {
             connectVec(g, j, (j+1)%4, projectedVectors);
             connectVec(g, j + 4, (j+1)%4 + 4, projectedVectors);
             connectVec(g, j, j + 4, projectedVectors);
         }
+    }
+
+
+    public void drawSide(Graphics g,int[] indices,Point[] points){
+        int[] xValues = new int[4];
+        int[] yValues = new int[4];
+        for (int i = 0; i < 4; i++) {
+            xValues[i] = (int)points[indices[i]].getX();
+            yValues[i] = (int)points[indices[i]].getY();
+        }
+        g.fillPolygon(xValues,yValues,4);
     }
     /**
      * 
@@ -107,6 +139,10 @@ public class Cube {
                 );
     }
 
+    public void toggleDrawSides(){drawSides = !drawSides;}
+    public boolean getDrawSides(){return drawSides;}
+
+    public int getSideLength(){return sideLength;}
     public void spinX(double in){
         angleX += Math.toRadians(in);
         updateRotationMatrices();
@@ -118,6 +154,15 @@ public class Cube {
     public void spinZ(double in){
         angleZ += Math.toRadians(in);
         updateRotationMatrices();
+    }
+
+    public void changeSideLength(int in){
+        if(in < 0 && sideLength > 0){
+            sideLength += in;
+        }else if(in > 0){
+            sideLength += in;
+        }
+
     }
 
     /**
