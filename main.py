@@ -3,16 +3,6 @@ import numpy as np
 import cube
 
 
-class Vector:
-    def __init__(self,x,y):
-            self.x = x
-            self.y = y
-    def __init__(self,x,y,z):
-            self.x = x
-            self.y = y
-            self.z = z
-
-
 (width,height) = (450,450)
 screen = pygame.display.set_mode((width,height))
 pygame.display.set_caption('Spinning Cube')
